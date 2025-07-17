@@ -1,0 +1,290 @@
+{
+  "name": "n8n - Docs",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -160,
+        -320
+      ],
+      "id": "60c5b075-1c58-47b1-8422-e976c99807ea",
+      "name": "When chat message received",
+      "webhookId": "ee1d3557-a239-49c2-a948-2687217b636c"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        128,
+        -320
+      ],
+      "id": "0a1aea07-ac4e-4a35-af3e-91524e6589ec",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        -144
+      ],
+      "id": "bf8d0eb1-e72a-48cb-9406-6b2fd0dbafa8",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -144
+      ],
+      "id": "610dfde3-ea21-46c5-b07a-aa1e9d1ec883",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://docs.googleapis.com/v1/documents/1YBngvwNIxE0kR1dYyLTNQGx_MhEyF1ivnDhJwkE0vwg:batchUpdate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json[\"body\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        848,
+        -320
+      ],
+      "id": "fe1fc141-a4bc-4cb2-a02d-60605763f6c8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0c5fcfbe-6baf-4c99-985d-d1f71d8cd6ce",
+              "name": "text",
+              "value": "=Pergunta:  {{ $('When chat message received').item.json.chatInput }}\nResposta: {{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        -320
+      ],
+      "id": "9e0aa552-a347-4f5d-a8b9-d5836128bd13",
+      "name": "Per/Res"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  const text = item.json.text || '';\n\n  return {\n    json: {\n      body: {\n        requests: [\n          {\n            insertText: {\n              location: { index: 1 },\n              text: text + '\\n\\n'\n            }\n          }\n        ]\n      }\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        -320
+      ],
+      "id": "14481fb3-7358-4172-bd88-514558dd35d8",
+      "name": "Code - \"Envio\""
+    },
+    {
+      "parameters": {
+        "content": "## Nó 1 - Pergunta\n** Receber a pergunta",
+        "height": 80,
+        "width": 220
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        -416
+      ],
+      "id": "8be4ea62-6d41-4425-8d9a-3d8b06d079d4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Nó 2 - Agente ia\n** Configurações\n* Modelo: OpenRouter ou Groq (ambos possuem api keys gratuitas).\n* Memória: Simple Memory.\n* Ferramenta: Wikipedia (base de informações para responder a pergunta).",
+        "height": 220,
+        "width": 280
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        128,
+        -560
+      ],
+      "id": "28e19791-1391-4cd5-b1aa-beb070728bee",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Nó 3 - Variáveis\n** text\n* Armazenar os dados da pergunta e resposta. obs: formato json",
+        "height": 200,
+        "width": 180
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -144
+      ],
+      "id": "7c189ba4-764f-432e-aed2-179a78728254",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "## Nó 4 - Código\n** Javascript\n* Este código percorre todos os itens recebidos (items.map) e prepara cada um para fazer uma requisição de inserção de texto em um documento do Google Docs.\n\n### Explicação: \n\nObtém o conteúdo do campo text de cada item (se estiver vazio, usa string vazia).\n\nAdiciona uma quebra de linha dupla (\\n\\n) ao final do texto para separar conteúdos.\n\nFormata a estrutura requests exigida pela API do Google Docs (insertText), inserindo o texto logo após o início do documento (index: 1).\n\nRetorna um objeto com a chave json.body, pronto para ser enviado em uma requisição HTTP POST para a URL https://docs.googleapis.com/v1/documents/DOCUMENT_ID:batchUpdate.",
+        "height": 480,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        480,
+        -848
+      ],
+      "id": "23c2e930-d747-48b7-b587-200908daed13",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## Nó 5 - Requisição\n** Envia o conteúdo\n\n### Requisitos\n* https://docs.googleapis.com/v1/documents/DOCUMENT_ID:batchUpdate.\n* Credenciais do google drive\n* Adição do conteúdo no \"Send Body\"",
+        "height": 220,
+        "width": 340
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        848,
+        -144
+      ],
+      "id": "61338fbe-baf9-48dd-bad1-08859a43e918",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        96,
+        -144
+      ],
+      "id": "9711381b-88dc-4f54-bb80-fb1b71530d2f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "hcUl2psO1KBNqbRh",
+          "name": "Groq account Miguel"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Per/Res": {
+      "main": [
+        [
+          {
+            "node": "Code - \"Envio\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - \"Envio\"": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5127dab-57dd-483f-bc52-1dc153d81064",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2417860b2f8dfc0fd1f06deed7b2a254146a2433732bb0febec47b6f347d1f91"
+  },
+  "id": "dduVEBQRfe7jqANx",
+  "tags": []
+}
