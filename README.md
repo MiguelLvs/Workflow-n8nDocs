@@ -1,4 +1,4 @@
-# 📊 Workflow n8n: [Nome do Workflow]
+# 📊 Workflow n8n: n8n - Docs
 
 ## 🔍 Descrição
 Este workflow realiza [explique o objetivo principal].  
@@ -40,14 +40,14 @@ Exemplo: envia lembretes automáticos via WhatsApp para pacientes com base em um
 
 1. Acesse o painel do n8n
 2. Clique em **Import > From File**
-3. Selecione o arquivo `nome-do-workflow.json`
+3. Selecione o arquivo `n8n-Docs.json`
 4. Clique em **Save**
 
 ---
 
 ## 🗃️ Arquivos
 
-- [`nome-do-workflow.json`](./nome-do-workflow.json) – Arquivo do workflow para importação no n8n.
+- [n8n - Docs.json`](./n8n-Docs.json) – Arquivo do workflow para importação no n8n.
 
 ---
 
